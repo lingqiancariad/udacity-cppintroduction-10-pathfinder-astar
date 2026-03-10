@@ -3,10 +3,11 @@
 #include <queue>
 #include <cmath>    // abs
 #include <algorithm>
+#include "a_star.hpp"
 
-#define NUM_NODES   16
-#define NUM_ROWS    4
-#define NUM_COLS    4
+// Default grid dimensions: 4x4
+int num_rows = 4;
+int num_cols = 4;
 
 // Minimal node model for this exercise
 struct Node {
@@ -33,33 +34,75 @@ int heuristic(const Node& a, const Node& b) {
     return std::abs(a.row - b.row) + std::abs(a.col - b.col);
 }
 
-int id_of(int r, int c) { return r*NUM_ROWS + c;}
+// Calculate id of node
+int id_of(int r, int c) { return r*num_rows + c;}
 
 // -----------------------------------------------------------------------------
 // Assume: 'nodes' is already populated (ids, row/col, neighbors).
 // Implement ONLY the main A* loop marked below.
 // -----------------------------------------------------------------------------
 int main() {
-    std::vector<Node> nodes(NUM_NODES);   
+    int startId = 0;                // start node by default is 0
+    int goalId  = startId + 1;       // goal node by default the last of nodes
+    
+    // The R"(...)" syntax defines a raw string. 
+    // Everything inside the parentheses is printed exactly as typed.
+    std::string intro = R"(
+=====================================================
+    A* PATHFINDING ALGORITHM MODULE            
+=====================================================
+Welcome! This program calculates the shortest path 
+between two points on a 2D grid using the A* search.
+
+ALGORITHM OVERVIEW:
+- Uses the formula: f(n) = g(n) + h(n)
+- g(n): Actual cost from the start to the current node.
+- h(n): Estimated cost (Heuristic) to the goal.
+
+Please prepare to enter 
+1. grid dimensions 
+2. start/end coordinates.
+-----------------------------------------------------
+)";
+    std::cout << intro << std::endl;
+
+    std::cout << ">>> Initializing A* Environment <<<\n";
+
+    std::cout << "1. Map Size [Rows x Cols]: \n";
+    std::cout << "Rows: ";
+    std::cin >> num_rows;
+    std::cout << "Cols: ";
+    std::cin >> num_cols;
+
+    int max_id = (num_rows * num_cols) - 1;
+
+    std::cout << "2. Start Node ID [0 - " << max_id << "]: ";
+    std::cin >> startId;
+
+    std::cout << "3. Goal Node ID  [0 - " << max_id << "]: ";
+    std::cin >> goalId;
+
+    std::cout << "\nSetting up a " << num_rows << "x" << num_cols << " grid..." << std::endl;
+    std::cout << "Pathfinding from Node " << startId << " to " << goalId << ".\n";
+
+    std::vector<Node> nodes(num_rows*num_cols);   
 
     // ... populate nodes (ids 0..N-1, row/col, neighbors) before running ...
     int idex = 0;
-    for (int r = 0; r < NUM_ROWS; r++) {
-        for (int c = 0; c < NUM_COLS; c++ ) {
+    for (int r = 0; r < num_rows; r++) {
+        for (int c = 0; c < num_cols; c++ ) {
             nodes[idex] = Node{ idex, r, c, -1, 0, 0, 0, {} };
             idex++;
         }
     }
-
     
-
-    for (int r = 0; r < NUM_ROWS; r++) {
-        for (int c = 0; c < NUM_COLS; c++) {
+    for (int r = 0; r < num_rows; r++) {
+        for (int c = 0; c < num_cols; c++) {
             int id_current = id_of(r,c);
             if (r > 0) nodes[id_current].neighbors.push_back(id_of(r - 1, c));
-            if (r < NUM_ROWS-1) nodes[id_current].neighbors.push_back(id_of(r + 1, c));
+            if (r < num_rows-1) nodes[id_current].neighbors.push_back(id_of(r + 1, c));
             if (c > 0) nodes[id_current].neighbors.push_back(id_of(r, c - 1));
-            if (c < NUM_COLS-1) nodes[id_current].neighbors.push_back(id_of(r, c + 1));
+            if (c < num_cols-1) nodes[id_current].neighbors.push_back(id_of(r, c + 1));
         }
     }
 
@@ -67,19 +110,7 @@ int main() {
     if (nodes.empty()) {
         std::cout << "Populate 'nodes' before running.\n";
         return 0;
-    }
-
-    // -----------------------------------------------------------------
-
-   
-
-    int startId = 0;
-    int goalId  = static_cast<int>(nodes.size()) - 1;
-
-    std::cout << "Give the Start ID of the node: \n";
-    std::cin >> startId;
-    std::cout << "Give the Goal ID of the node: \n";
-    std::cin >> goalId;
+    }   
 
     std::priority_queue<Node, std::vector<Node>, CompareF> openSet;
     std::vector<bool> closed(nodes.size(), false); // visited/closed
