@@ -37,10 +37,7 @@ int heuristic(const Node& a, const Node& b) {
 // Calculate id of node
 int id_of(int r, int c) { return r*num_rows + c;}
 
-// -----------------------------------------------------------------------------
-// Assume: 'nodes' is already populated (ids, row/col, neighbors).
-// Implement ONLY the main A* loop marked below.
-// -----------------------------------------------------------------------------
+
 int main() {
     int startId = 0;                // start node by default is 0
     int goalId  = startId + 1;       // goal node by default the last of nodes
